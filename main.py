@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from tortoise.contrib.fastapi import RegisterTortoise
-from models import Customer, Address
+from models import Customer
 from config import TORTOISE_ORM
 from typing import AsyncGenerator
 
