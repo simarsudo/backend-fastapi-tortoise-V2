@@ -1,0 +1,28 @@
+version: '1'
+
+networks:
+  dev-network:
+    driver: bridge
+
+name: backend-dev
+
+services:
+  devdb:
+    image: postgres:16.1-alpine3.19
+    restart: always
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./.env
+    volumes:
+      - .\scripts:/docker-entrypoint-initdb.d
+    networks:
+      - dev-network
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - dev-network
