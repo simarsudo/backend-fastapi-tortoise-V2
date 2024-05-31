@@ -15,7 +15,7 @@ async def get_customer(token: Annotated[str, Depends(oauth2_scheme)]):
         username: str = payload.get("username")
         if username is None:
             raise
-        customer = Customer.get_or_none(username=username, token=token)
+        customer = await Customer.get_or_none(username=username, token=token)
         if customer is None:
             raise HTTPException(
                 status_code=401,
