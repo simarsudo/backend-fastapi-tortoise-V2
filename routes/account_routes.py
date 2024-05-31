@@ -4,8 +4,7 @@ from fastapi import Depends, APIRouter, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 import tortoise.exceptions
 from tortoise.transactions import in_transaction
-from utils.customer_utils import get_customer
-from utils.common_utils import get_password_hash, create_access_token, verify_password
+from utils import get_password_hash, create_access_token, verify_password, get_customer
 from models import Customer, Address
 from schema import CustomerSignUp, TokenOut, CustomerSchema
 
