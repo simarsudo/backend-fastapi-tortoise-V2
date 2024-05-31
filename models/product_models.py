@@ -44,7 +44,7 @@ class Cart(models.Model):
     id = fields.IntField(primary_key=True)
     qty = fields.IntField(null=False)
 
-    product_id = fields.ForeignKeyField(
+    product = fields.ForeignKeyField(
         "models.Products", related_name="cart_item", null=False
     )
     customer = fields.ForeignKeyField(
