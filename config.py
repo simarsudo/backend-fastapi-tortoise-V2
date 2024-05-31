@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 
 
 load_dotenv()
-DEV_DB_URL = os.getenv("DEV_DB_URL")
 POSTGRES_USER = os.getenv("POSTGRES_USER")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 
@@ -19,11 +18,10 @@ TORTOISE_ORM = {
                 "database": "products",
             },
         },
-        # "default": DEV_DB_URL,
     },
     "apps": {
         "models": {
-            "models": ["aerich.models", "models.user_models"],
+            "models": ["aerich.models", "models.user_models", "models.product_models"],
             "default_connection": "default",
         }
     },
