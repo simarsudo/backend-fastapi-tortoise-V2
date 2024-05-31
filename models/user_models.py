@@ -8,6 +8,9 @@ class Customer(UserAbstractModel):
     cart_items = fields.ReverseRelation["Cart"]  # type: ignore
     wishlist_items = fields.ReverseRelation["Wishlist"]  # type: ignore
 
+    class PydanticMeta:
+        exclude = ["token", "password_hash"]
+
     class Meta:
         table = "customer"
 
