@@ -7,9 +7,10 @@ from config import (
     oauth2_scheme,
 )
 from models import Customer
+from schema import CustomerSchema
 
 
-async def get_customer(token: Annotated[str, Depends(oauth2_scheme)]):
+async def get_customer(token: Annotated[str, Depends(oauth2_scheme)]) -> CustomerSchema:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("username")
