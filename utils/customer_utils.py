@@ -1,34 +1,12 @@
-from datetime import datetime, timedelta, timezone
 from typing import Annotated
-from jose import JWTError, jwt
+from jose import jwt
 from fastapi import Depends, HTTPException
 from config import (
-    ACCESS_TOKEN_EXPIRE_MINUTES,
     SECRET_KEY,
     ALGORITHM,
     oauth2_scheme,
-    pwd_context,
 )
 from models import Customer
-
-
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
-
-
-def get_password_hash(password):
-    return pwd_context.hash(password)
-
-
-def create_access_token(
-    data: dict,
-    expires_delta: timedelta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
-):
-    to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + expires_delta
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
 
 
 async def get_customer(token: Annotated[str, Depends(oauth2_scheme)]):
@@ -59,7 +37,7 @@ async def get_customer(token: Annotated[str, Depends(oauth2_scheme)]):
             detail="Token expired",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    except JWTError:
+    except jwt.JWTError:
         raise HTTPException(
             status_code=403,
             detail="Token has Invalid.",
