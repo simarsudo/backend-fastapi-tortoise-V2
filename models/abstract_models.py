@@ -13,8 +13,5 @@ class UserAbstractModel(models.Model):
     registered_on = fields.DatetimeField(auto_now_add=True)
     last_login = fields.DatetimeField(auto_now=True)
 
-    class PydanticMeta:
-        exclude = ["hashed_password"]
-
     class Meta:
         abstract = True
