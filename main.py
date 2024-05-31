@@ -1,12 +1,13 @@
 import os
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from tortoise.contrib.fastapi import RegisterTortoise
-from models import Customer
 from config import TORTOISE_ORM
 from typing import AsyncGenerator
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+from routes import account_routes
 
 load_dotenv()
 DEV = os.getenv("DEV")
@@ -43,9 +44,6 @@ if DEV:
         allow_headers=["*"],
     )
 
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-@app.get("/")
-async def get_customers():
-    customer = await Customer.get(id=1)
-    addresses = await customer.addresses.all()
-    return addresses
+app.include_router(account_routes.router, prefix="/account", tags=["account"])
