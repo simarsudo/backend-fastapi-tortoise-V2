@@ -7,7 +7,7 @@ from config import TORTOISE_ORM
 from typing import AsyncGenerator
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-from routes import account_routes, admin_route
+from routes import account_routes, admin_route, actions_routes
 
 load_dotenv()
 DEV = os.getenv("DEV")
@@ -46,5 +46,6 @@ if DEV:
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-app.include_router(account_routes.router, prefix="/account", tags=["account"])
-app.include_router(admin_route.router, prefix="/admin", tags=["admin"])
+app.include_router(account_routes.router, prefix="/account", tags=["Account"])
+app.include_router(admin_route.router, prefix="/admin", tags=["Admin"])
+app.include_router(actions_routes.router, prefix="/actions", tags=["Actions"])
