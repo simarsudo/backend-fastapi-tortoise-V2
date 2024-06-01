@@ -12,7 +12,7 @@ class Products(models.Model):
     type = fields.CharEnumField(ProductType, max_length=20)
 
     images = fields.ReverseRelation["Images"]
-    cart_items = fields.ReverseRelation["Cart"]
+    cart_item = fields.ReverseRelation["Cart"]
     wishlist_items = fields.ReverseRelation["Wishlist"]
     inventory = fields.ReverseRelation["Inventory"]
     orders = fields.ReverseRelation["Orders"]
