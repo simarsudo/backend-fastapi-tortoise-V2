@@ -91,8 +91,12 @@ class Inventory(models.Model):
     id = fields.IntField(primary_key=True)
     quantity = fields.IntField(null=False)
 
-    product = fields.ForeignKeyField("models.Products", null=False)
-    size = fields.ForeignKeyField("models.Sizes", null=False)
+    product = fields.ForeignKeyField(
+        "models.Products", related_name="inventory", null=False
+    )
+    size = fields.ForeignKeyField(
+        "models.Sizes", related_name="cart_item_size", null=False
+    )
 
     def __repr__(self):
         return f"{self.size}: {self.quantity}"
