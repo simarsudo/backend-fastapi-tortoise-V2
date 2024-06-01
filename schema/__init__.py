@@ -1,5 +1,17 @@
 from .account_schema import CustomerSchema, CustomerSignUp, TokenOut
 from .product_schema import CartSchema, ProductSchema, SizeSchema, WishlistSchema
+from .action_schema import (
+    AddToWishlistOut,
+    AddToCartOut,
+    IsInWishlistOut,
+    RemoveWishlistItemOut,
+    MoveToCartIn,
+    MoveToCartOut,
+    UpdateCartItemQtyIn,
+    UpdateCartItemSizeIn,
+    NewAddressUserAddressIn,
+)
+
 from .admin_schema import (
     EmployeeSchema,
     NewEmployeeSchema,
@@ -37,4 +49,13 @@ __all__ = [
     UpdateBottomwearInventoryOut,
     UpdateTopWearInventoryIn,
     UpdateTopWearInventoryOut,
+    AddToWishlistOut,
+    AddToCartOut,
+    IsInWishlistOut,
+    RemoveWishlistItemOut,
+    MoveToCartIn,
+    MoveToCartOut,
+    UpdateCartItemQtyIn,
+    UpdateCartItemSizeIn,
+    NewAddressUserAddressIn,
 ]
