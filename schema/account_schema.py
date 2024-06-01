@@ -4,7 +4,7 @@ from datetime import datetime
 from .product_schema import WishlistSchema, CartSchema
 
 
-class AddressSchema:
+class AddressSchema(BaseModel):
     id: int
     name: str
     address: str
@@ -14,7 +14,7 @@ class AddressSchema:
     customer: int
 
 
-class CustomerSchema:
+class CustomerSchema(BaseModel):
     id: int
     username: str
     email: str
@@ -25,9 +25,9 @@ class CustomerSchema:
     token: str
     registered_on: datetime
     last_login: datetime
-    addresses = List[AddressSchema]
-    cart_items = List[CartSchema]
-    wishlist_items = List[WishlistSchema]
+    # addresses = List[AddressSchema]
+    # cart_items = List[CartSchema]
+    # wishlist_items = List[WishlistSchema]
 
 
 class TokenOut(BaseModel):
