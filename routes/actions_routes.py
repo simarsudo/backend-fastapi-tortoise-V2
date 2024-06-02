@@ -2,7 +2,8 @@ from typing import Annotated, Literal
 from fastapi import Depends, HTTPException, APIRouter
 from config import SIZE_IDS, BASELINK
 from utils import get_customer, get_cart_summary_response
-from models import Products, Wishlist, Cart, Address
+from tortoise.transactions import in_transaction
+from models import Products, Wishlist, Cart, Address, PaymentDetails, Orders, OrderItem
 from schema import (
     AddToWishlistOut,
     CustomerSchema,
@@ -14,6 +15,7 @@ from schema import (
     UpdateCartItemQtyIn,
     UpdateCartItemSizeIn,
     NewAddressUserAddressIn,
+    PaymentDetailsIn,
 )
 
 router = APIRouter()
@@ -147,6 +149,7 @@ async def remove_wishlist_item(
         raise
 
 
+# TODO: make this a transaction
 @router.post("/move-to-cart", response_model=MoveToCartOut)
 async def move_to_cart(
     request: MoveToCartIn,
@@ -327,41 +330,66 @@ async def update_delivery_address(
         raise
 
 
-# @router.post("/place-order")
-# def place_order(
-#     # payment_details: PaymentDetailsSchema,
-#     customer: Annotated[User, Depends(get_customer)],
-#     db: Session = Depends(get_db_session),
-# ):
-#     # try:
-#     if customer is None:
-#         raise HTTPException(status_code=404, detail="Customer not found")
-#     # pd = PaymentDetails(
-#     #     card_number=payment_details.cardNumber,
-#     #     card_holder_name=payment_details.name,
-#     #     month=payment_details.month,
-#     #     year=payment_details.year,
-#     #     cvv=payment_details.cvv,
-#     #     billing_address_id=customer.delivery_address_id,
-#     # )
-#     # db.add(pd)
-#     cart_items_in_db = db.query(Cart).filter_by(customer_id=customer.id).all()
-#     if cart_items_in_db is None:
-#         raise HTTPException(status_code=400, detail="No item in cart.")
-#     cart_items = []
-#     for item in cart_items_in_db:
-#         print(item)
-#         cart_items.append(
-#             {
-#                 "id": item.id,
-#                 "product_details": item.cart_item,
-#                 "size": item.size.size,
-#                 "qty": item.qty,
-#             }
-#         )
-#     return {"cart_item": cart_items}
-#     # except sqlalchemy.exc.SQLAlchemyError:
-#     #     db.rollback()
-#     #     raise HTTPException(status_code=500)
-#     # except HTTPException:
-#     #     raise
+@router.post("/place-order")
+async def place_order(
+    payment_details: PaymentDetailsIn,
+    customer: Annotated[CustomerSchema, Depends(get_customer)],
+):
+    try:
+        async with in_transaction() as conn:
+            address = await Address.get_or_none(id=customer.delivery_address)
+            if address is None:
+                raise HTTPException(status_code=404, detail="Addres not found in db")
+            cart_items_in_db = await Cart.filter(
+                customer_id=customer.id
+            ).prefetch_related(
+                "product__cart_item",
+                "size__cart_item_size",
+                "product__inventory__size",
+            )
+
+            if not cart_items_in_db:
+                raise HTTPException(status_code=400, detail="No items in cart.")
+
+            new_order = Orders(
+                delivery_address={
+                    "name": address.name,
+                    "phoneNo": address.phone_no,
+                    "address": address.address,
+                    "city": address.city,
+                    "state": address.state,
+                    "pinCode": address.pinCode,
+                },
+                customer=customer,
+            )
+            await new_order.save(using_db=conn)
+
+            payment_detail = PaymentDetails(
+                card_number=payment_details.cardNumber,
+                card_holder_name=payment_details.name,
+                month=payment_details.month,
+                year=payment_details.year,
+                cvv=payment_details.cvv,
+                order=new_order,
+                billing_address={
+                    "name": address.name,
+                    "phoneNo": customer.phone_no,
+                    "address": address.address,
+                    "city": address.city,
+                    "state": address.state,
+                    "pinCode": address.pinCode,
+                },
+            )
+            await payment_detail.save(using_db=conn)
+
+            for item in cart_items_in_db:
+                new_order_item = OrderItem(
+                    qty=item.qty, product_id=item.product_id, size=item.size
+                )
+                await new_order_item.save(using_db=conn)
+                await new_order.OrderItem.add(new_order_item)
+                await item.delete(using_db=conn)
+            return {"cart_item": "cart_items"}
+
+    except HTTPException:
+        raise
