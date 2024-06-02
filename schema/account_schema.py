@@ -24,6 +24,7 @@ class CustomerSchema(BaseModel):
     token: str
     registered_on: datetime
     last_login: datetime
+    delivery_address: int
     # addresses = List[AddressSchema]
     # cart_items = List[CartSchema]
     # wishlist_items = List[WishlistSchema]
