@@ -15,7 +15,11 @@ async def get_customer(token: Annotated[str, Depends(oauth2_scheme)]) -> Custome
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("username")
         if username is None:
-            raise
+            raise HTTPException(
+                status_code=403,
+                detail="Could not validate credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         customer = await Customer.get_or_none(username=username, token=token)
         if customer is None:
             raise HTTPException(
