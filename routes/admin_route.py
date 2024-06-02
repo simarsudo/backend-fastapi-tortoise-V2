@@ -43,7 +43,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
         if not verify_password(form_data.password, employee.password_hash):
             raise HTTPException(status_code=401)
         if any([employee.is_superuser, employee.is_admin, employee.is_staff]):
-            token = create_access_token(data={"sub": employee.username})
+            token = create_access_token(data={"username": employee.username})
             employee.token = token
             employee
             employee_roles = []

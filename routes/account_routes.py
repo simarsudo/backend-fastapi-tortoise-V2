@@ -48,7 +48,7 @@ async def signup_user(customer: CustomerSignUp):
                 customer_id=new_customer.id,
             )
             await new_address.save(using_db=conn)
-            token = create_access_token(data={"sub": customer.username})
+            token = create_access_token(data={"username": customer.username})
             new_customer.token = token
             new_customer.save(using_db=conn)
             return TokenOut(access_token=new_customer.token, token_type="bearer")
