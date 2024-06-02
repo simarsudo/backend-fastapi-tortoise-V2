@@ -181,6 +181,7 @@ async def move_to_cart(
                 qty=request.qty,
             )
             await cart_item.save()
+        await wishlist_item.delete()
         return {
             "success": "Item moved to cart",
         }
