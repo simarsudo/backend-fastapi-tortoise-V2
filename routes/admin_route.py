@@ -74,7 +74,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
 @router.post("/add-new-employee")
 async def create_employee(
     new_employee_details: NewEmployeeSchema,
-    employee: Annotated[EmployeeSchema, Depends(get_employee)],
+    # employee: Annotated[EmployeeSchema, Depends(get_employee)],
 ):
     try:
         old_employee = await Employee.filter(
@@ -93,7 +93,7 @@ async def create_employee(
         employee = Employee(
             username=new_employee_details.username.lower(),
             email=new_employee_details.email.lower(),
-            hashed_password=password_hash,
+            password_hash=password_hash,
             full_name=new_employee_details.full_name.lower(),
             phone_no=new_employee_details.phone_no,
             is_staff=True,
@@ -217,11 +217,11 @@ async def update_topwear_inventory(
     employee: Annotated[EmployeeSchema, Depends(get_employee)],
 ):
     try:
-        db_product = await Products.get_or_none(id=sizes.id)
+        db_product = await Products.get_or_none(id=sizes.product_id)
         if db_product is None:
             raise HTTPException(status_code=404, detail="Product not found")
         db_inv = (
-            await Inventory.filter(product=sizes.id)
+            await Inventory.filter(product=sizes.product_id)
             .all()
             .prefetch_related("product")
             .prefetch_related("size")
@@ -248,27 +248,27 @@ async def update_topwear_inventory(
         else:
             new_inventory_entries = [
                 Inventory(
-                    product_id=sizes.id,
+                    product_id=sizes.product_id,
                     size_id=SIZE_IDS.get("s"),
                     quantity=sizes.s,
                 ),
                 Inventory(
-                    product_id=sizes.id,
+                    product_id=sizes.product_id,
                     size_id=SIZE_IDS.get("m"),
                     quantity=sizes.m,
                 ),
                 Inventory(
-                    product_id=sizes.id,
+                    product_id=sizes.product_id,
                     size_id=SIZE_IDS.get("l"),
                     quantity=sizes.l,
                 ),
                 Inventory(
-                    product_id=sizes.id,
+                    product_id=sizes.product_id,
                     size_id=SIZE_IDS.get("xl"),
                     quantity=sizes.xl,
                 ),
                 Inventory(
-                    product_id=sizes.id,
+                    product_id=sizes.product_id,
                     size_id=SIZE_IDS.get("xxl"),
                     quantity=sizes.xxl,
                 ),
@@ -291,11 +291,11 @@ async def update_bottomwear_inventory(
     employee: Annotated[EmployeeSchema, Depends(get_employee)],
 ):
     try:
-        db_product = await Products.get_or_none(id=sizes.id)
+        db_product = await Products.get_or_none(id=sizes.product_id)
         if db_product is None:
             raise HTTPException(status_code=404, detail="Product not found")
         db_inv = (
-            await Inventory.filter(product=sizes.id)
+            await Inventory.filter(product=sizes.product_id)
             .all()
             .prefetch_related("product")
             .prefetch_related("size")
@@ -322,27 +322,27 @@ async def update_bottomwear_inventory(
         else:
             new_inventory_entries = [
                 Inventory(
-                    product_id=sizes.id,
+                    product_id=sizes.product_id,
                     size_id=SIZE_IDS.get("32"),
                     quantity=sizes.size_32,
                 ),
                 Inventory(
-                    product_id=sizes.id,
+                    product_id=sizes.product_id,
                     size_id=SIZE_IDS.get("34"),
                     quantity=sizes.size_34,
                 ),
                 Inventory(
-                    product_id=sizes.id,
+                    product_id=sizes.product_id,
                     size_id=SIZE_IDS.get("36"),
                     quantity=sizes.size_36,
                 ),
                 Inventory(
-                    product_id=sizes.id,
+                    product_id=sizes.product_id,
                     size_id=SIZE_IDS.get("38"),
                     quantity=sizes.size_38,
                 ),
                 Inventory(
-                    product_id=sizes.id,
+                    product_id=sizes.product_id,
                     size_id=SIZE_IDS.get("40"),
                     quantity=sizes.size_40,
                 ),
