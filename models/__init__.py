@@ -8,6 +8,7 @@ from .product_models import (
     Wishlist,
     Inventory,
     PaymentDetails,
+    OrderItem,
     Orders,
 )
 
@@ -23,6 +24,7 @@ __all__ = [
     Wishlist,
     Inventory,
     PaymentDetails,
+    OrderItem,
     Orders,
     Role,
     Resource,
