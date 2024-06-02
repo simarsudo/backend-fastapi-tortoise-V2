@@ -1,31 +1,28 @@
+from config import BASELINK
 from fastapi import Depends, HTTPException, APIRouter
-from core.schema.products_schema import ProductReturnSchema
-from core.models.products_model import Products, Inventory, Image
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import SQLAlchemyError
-from core.db_connection import get_db_session
+from models import Products, Inventory
 
 router = APIRouter()
 
 
-@router.get("/", response_model=list[ProductReturnSchema])
-def get_products(db: Session = Depends(get_db_session)):
-    try:
-        products_data = db.query(Products).all()
-        if not products_data:
-            raise HTTPException(status_code=404, detail="No products found")
-        return products_data
-    except SQLAlchemyError:
-        db.rollback()
-        raise HTTPException(status_code=500)
-    except HTTPException:
-        raise
+# @router.get("/", response_model=list[ProductReturnSchema])
+# def get_products():
+#     try:
+#         products_data = db.query(Products).all()
+#         if not products_data:
+#             raise HTTPException(status_code=404, detail="No products found")
+#         return products_data
+#     except SQLAlchemyError:
+#         db.rollback()
+#         raise HTTPException(status_code=500)
+#     except HTTPException:
+#         raise
 
 
 @router.get("/{slug}")
-def get_product(slug: str, db: Session = Depends(get_db_session)):
+async def get_product(slug: str):
     try:
-        product = db.query(Products).filter(Products.slug == slug).first()
+        product = await Products.get_or_none(slug=slug).prefetch_related("images")
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
         response = {
@@ -38,7 +35,9 @@ def get_product(slug: str, db: Session = Depends(get_db_session)):
             "sizesAvailable": [],
         }
 
-        inventory = db.query(Inventory).filter(Inventory.product_id == product.id).all()
+        inventory = await Inventory.filter(product_id=product.id).prefetch_related(
+            "size"
+        )
         if inventory:
             for i in inventory:
                 if i.quantity >= 1:
@@ -49,14 +48,10 @@ def get_product(slug: str, db: Session = Depends(get_db_session)):
                     response["sizesAvailable"].append(
                         {"size": i.size.size, "available": False}
                     )
-        images = db.query(Image).filter(Image.product_id == product.id).all()
-        if images:
-            for image in images:
-                response["images"].append("http://127.0.0.1:8000/" + image.image_path)
-        # Todo create dynamic link for static
+        # images = db.query(Image).filter(Image.product_id == product.id).all()
+        # if images:
+        for image in product.images:
+            response["images"].append(BASELINK + image.path)
         return response
-    except SQLAlchemyError:
-        db.rollback()
-        raise HTTPException(status_code=500)
     except HTTPException:
         raise
