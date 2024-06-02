@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from datetime import datetime
+from pydantic import BaseModel, Field
 from typing import Literal
 
 
@@ -51,3 +52,13 @@ class NewAddressUserAddressIn(BaseModel):
     city: str
     state: str
     pinCode: str
+
+
+class PaymentDetailsIn(BaseModel):
+    cardNumber: str = Field(
+        pattern=r"^\d{16}$", description="Credit card number must be exactly 16 digits"
+    )
+    month: int = Field(ge=1, le=12)
+    year: int = Field(ge=datetime.now().month, le=2050)
+    cvv: int = Field(ge=000, le=999)
+    name: str = Field(min_length=3, max_length=50)

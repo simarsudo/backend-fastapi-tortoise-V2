@@ -10,6 +10,7 @@ from .action_schema import (
     UpdateCartItemQtyIn,
     UpdateCartItemSizeIn,
     NewAddressUserAddressIn,
+    PaymentDetailsIn,
 )
 
 from .admin_schema import (
@@ -58,4 +59,5 @@ __all__ = [
     UpdateCartItemQtyIn,
     UpdateCartItemSizeIn,
     NewAddressUserAddressIn,
+    PaymentDetailsIn,
 ]
