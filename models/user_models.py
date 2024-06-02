@@ -4,6 +4,7 @@ from .abstract_models import UserAbstractModel
 
 
 class Customer(UserAbstractModel):
+    delivery_address = fields.IntField(null=True)
     addresses = fields.ReverseRelation["Address"]
     cart_items = fields.ReverseRelation["Cart"]  # type: ignore
     wishlist_items = fields.ReverseRelation["Wishlist"]  # type: ignore

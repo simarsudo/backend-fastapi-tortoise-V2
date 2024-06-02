@@ -1,9 +1,9 @@
-from models import Cart, Address
+from models import Cart, Address, Customer
 from config import BASELINK, TAXRATE
 
 
-async def get_cart_summary_response(customer_id: int) -> dict:
-    cart_list = await Cart.filter(customer_id=customer_id).prefetch_related(
+async def get_cart_summary_response(customer: Customer) -> dict:
+    cart_list = await Cart.filter(customer_id=customer.id).prefetch_related(
         "product__cart_item",
         "product__images",
         "size__cart_item_size",
@@ -43,7 +43,12 @@ async def get_cart_summary_response(customer_id: int) -> dict:
     gst = (response["cartBeforeTax"] * TAXRATE) / 100
     response["gst"] = gst
     response["cartTotal"] = response["cartBeforeTax"] + gst
-    user_addresses = await Address.get(customer_id=customer_id)
+    user_addresses = await Address.filter(customer_id=customer.id)
+    delivery_address = {}
+    for address in user_addresses:
+        if address.id == customer.delivery_address:
+            delivery_address = address
+            break
     response["addresses"] = user_addresses
-    response["deliveryAddress"] = user_addresses
+    response["deliveryAddress"] = delivery_address
     return response

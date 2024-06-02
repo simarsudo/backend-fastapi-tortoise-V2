@@ -194,7 +194,7 @@ async def get_cart_summary(
     customer: Annotated[CustomerSchema, Depends(get_customer)],
 ):
     try:
-        return await get_cart_summary_response(customer.id)
+        return await get_cart_summary_response(customer)
     except HTTPException:
         raise
 
@@ -219,7 +219,7 @@ async def update_cart_item_qty(
         cart_item.qty = item.qty
         await cart_item.save()
 
-        return await get_cart_summary_response(customer.id)
+        return await get_cart_summary_response(customer)
     except HTTPException:
         raise
 
@@ -251,7 +251,7 @@ async def update_item_qty(
             cart_item.size_id = SIZE_IDS[item.size]
             await cart_item.save()
 
-        return await get_cart_summary_response(customer.id)
+        return await get_cart_summary_response(customer)
     except HTTPException:
         raise
 
@@ -274,7 +274,7 @@ async def remove_cart_item(
         )
         if cart_item:
             await cart_item.delete()
-            return await get_cart_summary_response(customer.id)
+            return await get_cart_summary_response(customer)
         raise HTTPException(status_code=404, detail="Item not found in cart.")
     except HTTPException:
         raise
