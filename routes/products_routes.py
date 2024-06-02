@@ -1,5 +1,5 @@
 from config import BASELINK
-from fastapi import Depends, HTTPException, APIRouter
+from fastapi import HTTPException, APIRouter
 from models import Products, Inventory
 
 router = APIRouter()
@@ -48,8 +48,6 @@ async def get_product(slug: str):
                     response["sizesAvailable"].append(
                         {"size": i.size.size, "available": False}
                     )
-        # images = db.query(Image).filter(Image.product_id == product.id).all()
-        # if images:
         for image in product.images:
             response["images"].append(BASELINK + image.path)
         return response
