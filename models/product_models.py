@@ -14,6 +14,7 @@ class Products(models.Model):
     images = fields.ReverseRelation["Images"]
     cart_item = fields.ReverseRelation["Cart"]
     wishlist_items = fields.ReverseRelation["Wishlist"]
+    order_items = fields.ReverseRelation["OrderItem"]
     inventory = fields.ReverseRelation["Inventory"]
     orders = fields.ReverseRelation["Orders"]
 
@@ -64,6 +65,7 @@ class Sizes(models.Model):
     size = fields.CharField(max_length=5, unique=True, null=False)
 
     cart_item_size = fields.ReverseRelation["Cart"]
+    order_item_size = fields.ReverseRelation["OrderItem"]
     inventory = fields.ReverseRelation["Inventory"]
 
     def __repr__(self):
@@ -129,20 +131,44 @@ class PaymentDetails(models.Model):
         await super().save(*args, **kwargs)
 
 
-class Orders(models.Model):
+class OrderItem(models.Model):
     id = fields.IntField(primary_key=True)
-    order_id = fields.UUIDField()
-    delivery_address = fields.JSONField(null=False)
-    customer = fields.ForeignKeyField("models.Customer", null=False)
-    products = fields.ManyToManyField("models.Products", related_name="orders")
-    payment_detail = fields.ReverseRelation["PaymentDetails"]
+    qty = fields.IntField()
 
-    def __repr__(self):
-        return f"{self.order_id}"
+    product = fields.ForeignKeyField("models.Products", related_name="item")
+    size = fields.ForeignKeyField("models.Sizes", related_name="order_item_sizes")
 
     class Meta:
-        table = "orders"
+        table = "order_item"
+
+
+class Orders(models.Model):
+    id = fields.IntField(primary_key=True)
+    order_number = fields.CharField(max_length=10, unique=True)
+    delivery_address = fields.JSONField(null=False)
+    order_placed_on = fields.DatetimeField(auto_now_add=True)
+
+    customer = fields.ForeignKeyField("models.Customer", null=False)
+    OrderItem = fields.ManyToManyField(
+        "models.OrderItem", related_name="orders", on_delete="CASCADE"
+    )
+
+    def __repr__(self):
+        return f"{self.order_number}"
+
+    async def generate_order_number(self):
+        # Get the highest existing order number from the database
+        highest_order = await Orders.all().order_by("-order_number").first()
+        if highest_order:
+            next_order_number = int(highest_order.order_number) + 1
+        else:
+            next_order_number = 1000000000
+        return next_order_number
 
     async def save(self, *args, **kwargs):
         validate_json_address(self.delivery_address)
+        self.order_number = await self.generate_order_number()
         await super().save(*args, **kwargs)
+
+    class Meta:
+        table = "orders"
