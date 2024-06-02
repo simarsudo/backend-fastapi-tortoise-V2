@@ -1,7 +1,6 @@
-from typing import Literal, List
+from typing import Literal
 from pydantic import BaseModel
 from datetime import datetime
-from .product_schema import WishlistSchema, CartSchema
 
 
 class AddressSchema(BaseModel):
