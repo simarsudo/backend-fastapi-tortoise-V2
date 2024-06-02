@@ -232,13 +232,14 @@ async def update_item_qty(
 ):
     try:
         size_id = SIZE_IDS[item.size]
+        prev_size_id = SIZE_IDS[item.prevSize]
         prev_cart_item = await Cart.get_or_none(
             customer_id=customer.id, product_id=item.id, size_id=size_id
         )
         cart_item = await Cart.get_or_none(
             customer_id=customer.id,
             product_id=item.id,
-            size_id=size_id,
+            size_id=prev_size_id,
             qty=item.qty,
         )
         if prev_cart_item:
@@ -247,8 +248,9 @@ async def update_item_qty(
             else:
                 prev_cart_item.qty += item.qty
             await cart_item.delete()
+            await prev_cart_item.save()
         else:
-            cart_item.size_id = SIZE_IDS[item.size]
+            cart_item.size_id = size_id
             await cart_item.save()
 
         return await get_cart_summary_response(customer)
