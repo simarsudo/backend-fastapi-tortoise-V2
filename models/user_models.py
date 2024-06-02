@@ -28,11 +28,12 @@ class Employee(UserAbstractModel):
 
 class Address(models.Model):
     id = fields.IntField(pk=True)
-    name = fields.CharField(max_length=50)
-    address = fields.CharField(max_length=100)
-    city = fields.CharField(max_length=20)
-    state = fields.CharField(max_length=20)
-    pinCode = fields.CharField(max_length=10)
+    name = fields.CharField(max_length=50, null=False)
+    phone_no = fields.CharField(max_length=10, null=False)
+    address = fields.CharField(max_length=100, null=False)
+    city = fields.CharField(max_length=20, null=False)
+    state = fields.CharField(max_length=20, null=False)
+    pinCode = fields.CharField(max_length=10, null=False)
     customer = fields.ForeignKeyField("models.Customer", related_name="addresses")
 
     class Meta:
