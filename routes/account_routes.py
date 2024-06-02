@@ -2,7 +2,6 @@ import tortoise
 from typing import Annotated
 from fastapi import Depends, APIRouter, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
-import tortoise.exceptions
 from tortoise.transactions import in_transaction
 from utils import get_password_hash, create_access_token, verify_password, get_customer
 from models import Customer, Address
@@ -48,16 +47,18 @@ async def signup_user(customer: CustomerSignUp):
                 customer_id=new_customer.id,
             )
             await new_address.save(using_db=conn)
-            token = create_access_token(data={"username": customer.username})
-            new_customer.token = token
-            new_customer.save(using_db=conn)
-            return TokenOut(access_token=new_customer.token, token_type="bearer")
+        token = create_access_token(data={"username": new_customer.username})
+        new_customer = await Customer.get(email=customer.email)
+        new_address = await Address.get(customer_id=new_customer.id)
+        new_customer.delivery_address = new_address.id
+        new_customer.token = token
+        await new_customer.save()
+        new_customer.token = token
+        return TokenOut(access_token=new_customer.token, token_type="bearer")
     except tortoise.exceptions.IntegrityError:
         raise HTTPException(status_code=400, detail="Account already exist")
     except tortoise.exceptions.OperationalError:
         raise HTTPException(status_code=500)
-    except HTTPException:
-        raise
 
 
 @router.post("/logout")
