@@ -52,6 +52,9 @@ class NewAddressUserAddressIn(BaseModel):
     city: str
     state: str
     pinCode: str
+    phoneNo: str = Field(
+        pattern=r"^\d{10}$", description="Phone Number number must be exactly 10 digits"
+    )
 
 
 class PaymentDetailsIn(BaseModel):
@@ -59,6 +62,6 @@ class PaymentDetailsIn(BaseModel):
         pattern=r"^\d{16}$", description="Credit card number must be exactly 16 digits"
     )
     month: int = Field(ge=1, le=12)
-    year: int = Field(ge=datetime.now().month, le=2050)
-    cvv: int = Field(ge=000, le=999)
+    year: int = Field(ge=datetime.now().year - 1, le=2050)
+    cvv: int = Field(ge=0, le=999)
     name: str = Field(min_length=3, max_length=50)
