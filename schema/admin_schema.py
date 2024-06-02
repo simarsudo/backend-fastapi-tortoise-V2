@@ -78,7 +78,7 @@ class AddProductImages(BaseModel):
 
 
 class UpdateTopWearInventoryIn(BaseModel):
-    id: int
+    product_id: int
     s: int
     m: int
     l: int  # noqa: E741
@@ -91,7 +91,7 @@ class UpdateTopWearInventoryOut(BaseModel):
 
 
 class UpdateBottomwearInventoryIn(BaseModel):
-    id: int
+    product_id: int
     size_32: int
     size_34: int
     size_36: int
