@@ -1,5 +1,6 @@
 from typing import Annotated, Literal
 from fastapi import Depends, HTTPException, APIRouter
+from Enum.enum_definations import OrderStatus
 from config import SIZE_IDS, BASELINK
 from utils import get_customer, get_cart_summary_response
 from tortoise.transactions import in_transaction
@@ -361,6 +362,7 @@ async def place_order(
                     "pinCode": address.pinCode,
                 },
                 customer=customer,
+                status=OrderStatus.PACKING,
             )
             await new_order.save(using_db=conn)
 
