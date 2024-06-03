@@ -1,5 +1,5 @@
 from tortoise import fields, models
-from Enum.enum_definations import ProductType
+from Enum.enum_definations import ProductType, OrderStatus
 from .validators import validate_json_address
 
 
@@ -147,6 +147,7 @@ class Orders(models.Model):
     order_number = fields.CharField(max_length=10, unique=True)
     delivery_address = fields.JSONField(null=False)
     order_placed_on = fields.DatetimeField(auto_now_add=True)
+    status = fields.CharEnumField(OrderStatus, max_length=20)
 
     customer = fields.ForeignKeyField("models.Customer", null=False)
     OrderItem = fields.ManyToManyField(
