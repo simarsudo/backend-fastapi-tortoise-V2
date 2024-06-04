@@ -4,7 +4,16 @@ from Enum.enum_definations import OrderStatus
 from config import SIZE_IDS, BASELINK
 from utils import get_customer, get_cart_summary_response
 from tortoise.transactions import in_transaction
-from models import Products, Wishlist, Cart, Address, PaymentDetails, Orders, OrderItem
+from models import (
+    Products,
+    Wishlist,
+    Cart,
+    Address,
+    PaymentDetails,
+    Orders,
+    OrderItem,
+    Sizes,
+)
 from schema import (
     AddToWishlistOut,
     CustomerSchema,
@@ -17,6 +26,9 @@ from schema import (
     UpdateCartItemSizeIn,
     NewAddressUserAddressIn,
     PaymentDetailsIn,
+    GetOrdersOut,
+    OrderItemsOut,
+    OrderImageOut,
 )
 
 router = APIRouter()
@@ -393,5 +405,48 @@ async def place_order(
                 await item.delete(using_db=conn)
             return {"cart_item": "cart_items"}
 
+    except HTTPException:
+        raise
+
+
+@router.get("/get-orders", response_model=GetOrdersOut)
+async def get_orders(customer: Annotated[CustomerSchema, Depends(get_customer)]):
+    try:
+        orders = await Orders.filter(customer_id=customer.id)
+        if not orders:
+            return []
+        return orders
+    except HTTPException:
+        raise
+
+
+@router.get(
+    "/get-orders-details",
+)
+async def get_orders_details(
+    order_number,
+    customer: Annotated[CustomerSchema, Depends(get_customer)],
+):
+    try:
+        response = {"orderDetails": {}, "orderItems": []}
+        order = await Orders.get_or_none(order_number=order_number).prefetch_related(
+            "OrderItem__product", "OrderItem__product__images"
+        )
+        if order is None:
+            return {}
+        response["orderDetails"] = order
+        for item in order.OrderItem:
+            product = (await OrderItemsOut.from_tortoise_orm(item.product)).model_dump()
+            image_dict = (
+                await OrderImageOut.from_tortoise_orm(item.product.images[0])
+            ).model_dump()
+            print(image_dict)
+            size = await Sizes.get_or_none(id=item.size_id)
+            product["image"] = BASELINK + image_dict["path"]
+            product["size"] = size.size
+            product["qty"] = item.qty
+
+            response["orderItems"].append(product)
+        return response
     except HTTPException:
         raise
