@@ -412,7 +412,9 @@ async def place_order(
 @router.get("/get-orders", response_model=GetOrdersOut)
 async def get_orders(customer: Annotated[CustomerSchema, Depends(get_customer)]):
     try:
-        orders = await Orders.filter(customer_id=customer.id)
+        orders = await Orders.filter(customer_id=customer.id).order_by(
+            ("-order_placed_on")
+        )
         if not orders:
             return []
         return orders
