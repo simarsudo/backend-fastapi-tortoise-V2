@@ -334,8 +334,8 @@ async def update_delivery_address(
     try:
         address = await Address.get_or_none(id=addressId)
         if address:
-            customer.delivery_address_id = address.id
-            await address.save()
+            customer.delivery_address = addressId
+            await customer.save()
             return {"status": "success"}
         else:
             raise HTTPException(status_code=404, detail="Address not found")
