@@ -1,8 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel, Field
 from typing import Literal
-from tortoise.contrib.pydantic import pydantic_queryset_creator, pydantic_model_creator
-from models import Orders
+from tortoise.contrib.pydantic import pydantic_model_creator
 from models.product_models import Images, Products
 
 
@@ -68,9 +67,6 @@ class PaymentDetailsIn(BaseModel):
     year: int = Field(ge=datetime.now().year - 1, le=2050)
     cvv: int = Field(ge=0, le=999)
     name: str = Field(min_length=3, max_length=50)
-
-
-GetOrdersOut = pydantic_queryset_creator(Orders, exclude=("customer_id",))
 
 
 OrderItemsOut = pydantic_model_creator(

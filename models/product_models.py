@@ -134,6 +134,7 @@ class PaymentDetails(models.Model):
 class OrderItem(models.Model):
     id = fields.IntField(primary_key=True)
     qty = fields.IntField()
+    price = fields.IntField()
 
     product = fields.ForeignKeyField("models.Products", related_name="item")
     size = fields.ForeignKeyField("models.Sizes", related_name="order_item_sizes")

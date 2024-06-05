@@ -11,7 +11,6 @@ from .action_schema import (
     UpdateCartItemSizeIn,
     NewAddressUserAddressIn,
     PaymentDetailsIn,
-    GetOrdersOut,
     OrderItemsOut,
     OrderImageOut,
 )
@@ -63,7 +62,6 @@ __all__ = [
     UpdateCartItemSizeIn,
     NewAddressUserAddressIn,
     PaymentDetailsIn,
-    GetOrdersOut,
     OrderItemsOut,
     OrderImageOut,
 ]

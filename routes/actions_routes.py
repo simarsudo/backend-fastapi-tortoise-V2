@@ -1,7 +1,7 @@
 from typing import Annotated, Literal
 from fastapi import Depends, HTTPException, APIRouter
 from Enum.enum_definations import OrderStatus
-from config import SIZE_IDS, BASELINK
+from config import SIZE_IDS, BASELINK, TAXRATE
 from utils import get_customer, get_cart_summary_response
 from tortoise.transactions import in_transaction
 from models import (
@@ -26,7 +26,6 @@ from schema import (
     UpdateCartItemSizeIn,
     NewAddressUserAddressIn,
     PaymentDetailsIn,
-    GetOrdersOut,
     OrderItemsOut,
     OrderImageOut,
 )
@@ -398,7 +397,10 @@ async def place_order(
 
             for item in cart_items_in_db:
                 new_order_item = OrderItem(
-                    qty=item.qty, product_id=item.product_id, size=item.size
+                    qty=item.qty,
+                    product_id=item.product_id,
+                    size=item.size,
+                    price=item.product.price,
                 )
                 await new_order_item.save(using_db=conn)
                 await new_order.OrderItem.add(new_order_item)
@@ -409,15 +411,26 @@ async def place_order(
         raise
 
 
-@router.get("/get-orders", response_model=GetOrdersOut)
+@router.get("/get-orders")
 async def get_orders(customer: Annotated[CustomerSchema, Depends(get_customer)]):
     try:
-        orders = await Orders.filter(customer_id=customer.id).order_by(
-            ("-order_placed_on")
+        orders = (
+            await Orders.filter(customer_id=customer.id)
+            .order_by(("-order_placed_on"))
+            .prefetch_related("OrderItem")
         )
         if not orders:
             return []
-        return orders
+        response = []
+        for order in orders:
+            total = 0
+            return_dict = await order.get().values()
+            for item in await order.OrderItem.all().values():
+                tax_price = item["price"] + (item["price"] * TAXRATE) / 100
+                total += tax_price * item["qty"]
+            return_dict["total"] = total
+            response.append(return_dict)
+        return response
     except HTTPException:
         raise
 
@@ -442,7 +455,6 @@ async def get_orders_details(
             image_dict = (
                 await OrderImageOut.from_tortoise_orm(item.product.images[0])
             ).model_dump()
-            print(image_dict)
             size = await Sizes.get_or_none(id=item.size_id)
             product["image"] = BASELINK + image_dict["path"]
             product["size"] = size.size
