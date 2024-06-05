@@ -425,12 +425,12 @@ async def get_orders(customer: Annotated[CustomerSchema, Depends(get_customer)])
         response = []
         for order in orders:
             total = 0
-            return_dict = await order.get().values()
+            res_dict = dict(order)
             for item in await order.OrderItem.all().values():
                 tax_price = item["price"] + (item["price"] * TAXRATE) / 100
                 total += tax_price * item["qty"]
-            return_dict["total"] = total
-            response.append(return_dict)
+                res_dict["total"] = total
+            response.append(res_dict)
         return response
     except HTTPException:
         raise
