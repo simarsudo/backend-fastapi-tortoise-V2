@@ -5,20 +5,6 @@ from models import Products, Inventory
 router = APIRouter()
 
 
-# @router.get("/", response_model=list[ProductReturnSchema])
-# def get_products():
-#     try:
-#         products_data = db.query(Products).all()
-#         if not products_data:
-#             raise HTTPException(status_code=404, detail="No products found")
-#         return products_data
-#     except SQLAlchemyError:
-#         db.rollback()
-#         raise HTTPException(status_code=500)
-#     except HTTPException:
-#         raise
-
-
 @router.get("/{slug}")
 async def get_product(slug: str):
     try:
