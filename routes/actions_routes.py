@@ -314,6 +314,7 @@ async def get_user_addresses(
                 state=address.state,
                 pinCode=address.pinCode,
                 customer_id=customer.id,
+                phone_no=customer.phone_no,
             )
             await new_address.save()
             new_addresses = await Address.filter(customer_id=customer.id)

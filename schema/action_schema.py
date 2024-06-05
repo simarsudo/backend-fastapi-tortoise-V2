@@ -54,7 +54,7 @@ class NewAddressUserAddressIn(BaseModel):
     city: str
     state: str
     pinCode: str
-    phoneNo: str = Field(
+    phone_no: str = Field(
         pattern=r"^\d{10}$", description="Phone Number number must be exactly 10 digits"
     )
 
