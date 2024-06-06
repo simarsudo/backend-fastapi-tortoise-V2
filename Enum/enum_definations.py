@@ -2,7 +2,8 @@ from enum import Enum
 
 
 class ProductType(Enum):
-    SHIRT = "Shirt"
+    SHIRTS = "Shirts"
+    TSHIRTS = "TShirts"
     PANTS = "Pants"
     JOGGERS = "Joggers"
 
