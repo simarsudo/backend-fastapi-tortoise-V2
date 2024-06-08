@@ -163,7 +163,7 @@ async def get_all_products(
     products = await Products.all().offset(offset).limit(per_page)
     if name:
         products = (
-            await Products.filter(name__contains=name)
+            await Products.filter(name__icontains=name)
             .all()
             .offset(offset)
             .limit(per_page)
