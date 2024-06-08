@@ -3,10 +3,11 @@ from typing import Annotated, List
 from slugify import slugify
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from fastapi.security import OAuth2PasswordRequestForm
-from config import SIZE_IDS
+from config import BASELINK, SIZE_IDS, TAXRATE
 import tortoise.exceptions
 from tortoise.expressions import Q
 from tortoise.transactions import in_transaction
+from models.product_models import Orders, Sizes
 from utils import get_employee
 from models import Employee, Products, Images, Inventory
 from schema import (
@@ -23,6 +24,10 @@ from schema import (
     UpdateBottomwearInventoryOut,
     UpdateTopWearInventoryIn,
     UpdateTopWearInventoryOut,
+)
+from schema import (
+    OrderItemsOut,
+    OrderImageOut,
 )
 from utils import (
     get_password_hash,
@@ -353,6 +358,60 @@ async def update_bottomwear_inventory(
         raise HTTPException(status_code=400, detail="Account already exist")
     except tortoise.exceptions.OperationalError:
         raise HTTPException(status_code=500)
+    except HTTPException:
+        raise
+
+
+@router.get("/get-orders")
+async def get_orders(customer: Annotated[EmployeeSchema, Depends(get_employee)]):
+    try:
+        orders = (
+            await Orders.all()
+            .order_by(("-order_placed_on"))
+            .prefetch_related("OrderItem")
+        )
+        if not orders:
+            return []
+        response = []
+        for order in orders:
+            total = 0
+            res_dict = dict(order)
+            for item in await order.OrderItem.all().values():
+                tax_price = item["price"] + (item["price"] * TAXRATE) / 100
+                total += tax_price * item["qty"]
+                res_dict["total"] = total
+            response.append(res_dict)
+        return response
+    except HTTPException:
+        raise
+
+
+@router.get(
+    "/get-orders-details",
+)
+async def get_orders_details(
+    order_number, customer: Annotated[EmployeeSchema, Depends(get_employee)]
+):
+    try:
+        response = {"orderDetails": {}, "orderItems": []}
+        order = await Orders.get_or_none(order_number=order_number).prefetch_related(
+            "OrderItem__product", "OrderItem__product__images"
+        )
+        if order is None:
+            return {}
+        response["orderDetails"] = order
+        for item in order.OrderItem:
+            product = (await OrderItemsOut.from_tortoise_orm(item.product)).model_dump()
+            image_dict = (
+                await OrderImageOut.from_tortoise_orm(item.product.images[0])
+            ).model_dump()
+            size = await Sizes.get_or_none(id=item.size_id)
+            product["image"] = BASELINK + image_dict["path"]
+            product["size"] = size.size
+            product["qty"] = item.qty
+
+            response["orderItems"].append(product)
+        return response
     except HTTPException:
         raise
 
