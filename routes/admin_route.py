@@ -79,7 +79,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
 @router.post("/add-new-employee")
 async def create_employee(
     new_employee_details: NewEmployeeSchema,
-    # employee: Annotated[EmployeeSchema, Depends(get_employee)],
+    employee: Annotated[EmployeeSchema, Depends(get_employee)],
 ):
     try:
         old_employee = await Employee.filter(
