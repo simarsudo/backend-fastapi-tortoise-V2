@@ -34,6 +34,7 @@ from utils import (
     verify_password,
     create_access_token,
 )
+from Enum.enum_definations import OrderStatus
 
 
 router = APIRouter()
@@ -366,7 +367,7 @@ async def update_bottomwear_inventory(
 async def get_orders(customer: Annotated[EmployeeSchema, Depends(get_employee)]):
     try:
         orders = (
-            await Orders.all()
+            await Orders.filter(status=OrderStatus.PACKING)
             .order_by(("-order_placed_on"))
             .prefetch_related("OrderItem")
         )
@@ -382,6 +383,47 @@ async def get_orders(customer: Annotated[EmployeeSchema, Depends(get_employee)])
                 res_dict["total"] = total
             response.append(res_dict)
         return response
+    except HTTPException:
+        raise
+
+
+@router.get("/get-shipped-orders")
+async def get_shipped_orders(
+    customer: Annotated[EmployeeSchema, Depends(get_employee)],
+):
+    try:
+        orders = (
+            await Orders.filter(status=OrderStatus.SHIPPED)
+            .order_by(("-order_placed_on"))
+            .prefetch_related("OrderItem")
+        )
+        if not orders:
+            return []
+        response = []
+        for order in orders:
+            total = 0
+            res_dict = dict(order)
+            for item in await order.OrderItem.all().values():
+                tax_price = item["price"] + (item["price"] * TAXRATE) / 100
+                total += tax_price * item["qty"]
+                res_dict["total"] = total
+            response.append(res_dict)
+        return response
+    except HTTPException:
+        raise
+
+
+@router.post("/update-status-to-shipped")
+async def update_order_status(
+    id: int, customer: Annotated[EmployeeSchema, Depends(get_employee)]
+):
+    try:
+        order = await Orders.get_or_none(id=id)
+        if order is None:
+            raise HTTPException(status_code=404, detail="Order not found")
+        order.status = OrderStatus.SHIPPED
+        await order.save()
+        return {"success": 200}
     except HTTPException:
         raise
 
