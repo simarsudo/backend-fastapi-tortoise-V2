@@ -413,6 +413,32 @@ async def get_shipped_orders(
         raise
 
 
+@router.get("/get-delivered-orders")
+async def get_delivered_orders(
+    customer: Annotated[EmployeeSchema, Depends(get_employee)],
+):
+    try:
+        orders = (
+            await Orders.filter(status=OrderStatus.DELIVERED)
+            .order_by(("-order_placed_on"))
+            .prefetch_related("OrderItem")
+        )
+        if not orders:
+            return []
+        response = []
+        for order in orders:
+            total = 0
+            res_dict = dict(order)
+            for item in await order.OrderItem.all().values():
+                tax_price = item["price"] + (item["price"] * TAXRATE) / 100
+                total += tax_price * item["qty"]
+                res_dict["total"] = total
+            response.append(res_dict)
+        return response
+    except HTTPException:
+        raise
+
+
 @router.post("/update-status-to-shipped")
 async def update_order_status(
     id: int, customer: Annotated[EmployeeSchema, Depends(get_employee)]
@@ -423,7 +449,23 @@ async def update_order_status(
             raise HTTPException(status_code=404, detail="Order not found")
         order.status = OrderStatus.SHIPPED
         await order.save()
-        return {"success": 200}
+        orders = (
+            await Orders.filter(status=OrderStatus.PACKING)
+            .order_by(("-order_placed_on"))
+            .prefetch_related("OrderItem")
+        )
+        if not orders:
+            return []
+        response = []
+        for order in orders:
+            total = 0
+            res_dict = dict(order)
+            for item in await order.OrderItem.all().values():
+                tax_price = item["price"] + (item["price"] * TAXRATE) / 100
+                total += tax_price * item["qty"]
+                res_dict["total"] = total
+            response.append(res_dict)
+        return response
     except HTTPException:
         raise
 
@@ -438,7 +480,23 @@ async def update_order_delivered(
             raise HTTPException(status_code=404, detail="Order not found")
         order.status = OrderStatus.DELIVERED
         await order.save()
-        return {"success": 200}
+        orders = (
+            await Orders.filter(status=OrderStatus.SHIPPED)
+            .order_by(("-order_placed_on"))
+            .prefetch_related("OrderItem")
+        )
+        if not orders:
+            return []
+        response = []
+        for order in orders:
+            total = 0
+            res_dict = dict(order)
+            for item in await order.OrderItem.all().values():
+                tax_price = item["price"] + (item["price"] * TAXRATE) / 100
+                total += tax_price * item["qty"]
+                res_dict["total"] = total
+            response.append(res_dict)
+        return response
     except HTTPException:
         raise
 
