@@ -428,6 +428,21 @@ async def update_order_status(
         raise
 
 
+@router.post("/update-status-to-delivered")
+async def update_order_delivered(
+    id: int, customer: Annotated[EmployeeSchema, Depends(get_employee)]
+):
+    try:
+        order = await Orders.get_or_none(id=id)
+        if order is None:
+            raise HTTPException(status_code=404, detail="Order not found")
+        order.status = OrderStatus.DELIVERED
+        await order.save()
+        return {"success": 200}
+    except HTTPException:
+        raise
+
+
 @router.get(
     "/get-orders-details",
 )
