@@ -373,7 +373,10 @@ async def get_product_info(
         if product is None:
             raise HTTPException(status_code=404, detail="Product not found")
         response = dict(product)
-        response["images"] = await product.images
+        return_images = []
+        for image in await product.images:
+            return_images.append({"id": image.id, "path": BASELINK + image.path})
+        response["images"] = return_images
         return response
     except HTTPException:
         raise
