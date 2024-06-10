@@ -24,6 +24,7 @@ from schema import (
     UpdateBottomwearInventoryOut,
     UpdateTopWearInventoryIn,
     UpdateTopWearInventoryOut,
+    UpdateProductInfoIn,
 )
 from schema import (
     OrderItemsOut,
@@ -359,6 +360,40 @@ async def update_bottomwear_inventory(
         raise HTTPException(status_code=400, detail="Account already exist")
     except tortoise.exceptions.OperationalError:
         raise HTTPException(status_code=500)
+    except HTTPException:
+        raise
+
+
+@router.get("/get-product-info")
+async def get_product_info(
+    id: int, employee: Annotated[EmployeeSchema, Depends(get_employee)]
+):
+    try:
+        product = await Products.get_or_none(id=id).prefetch_related("images")
+        if product is None:
+            raise HTTPException(status_code=404, detail="Product not found")
+        response = dict(product)
+        response["images"] = await product.images
+        return response
+    except HTTPException:
+        raise
+
+
+@router.post("/update-product-info")
+async def update_product_info(
+    product_info: UpdateProductInfoIn,
+    employee: Annotated[EmployeeSchema, Depends(get_employee)],
+):
+    try:
+        product = await Products.get_or_none(id=product_info.id)
+        if product is None:
+            raise HTTPException(status_code=404, detail="Product not found")
+        product.name = product_info.name
+        product.price = product_info.price
+        product.type = product_info.type
+        product.description = product_info.description
+        await product.save()
+        return {"success": 200}
     except HTTPException:
         raise
 

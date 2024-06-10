@@ -101,3 +101,11 @@ class UpdateBottomwearInventoryIn(BaseModel):
 
 class UpdateBottomwearInventoryOut(BaseModel):
     message: Literal["Inventory updated"]
+
+
+class UpdateProductInfoIn(BaseModel):
+    id: int
+    name: str
+    price: int
+    description: str
+    type: Literal["Shirts", "TShirts", "Pants", "Joggers"]
