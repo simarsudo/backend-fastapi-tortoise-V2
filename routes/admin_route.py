@@ -1,3 +1,4 @@
+import os
 import tortoise
 from typing import Annotated, List
 from slugify import slugify
@@ -420,6 +421,8 @@ async def delete_product_image(
             )
         image = await Images.get_or_none(id=product_image_detail.imageId)
         if image:
+            if os.path.exists(image.path):
+                os.remove(image.path)
             await image.delete()
             return_images = []
             for image in await product.images:
