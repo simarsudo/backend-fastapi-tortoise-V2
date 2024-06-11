@@ -16,7 +16,7 @@ from routes import (
 )
 
 load_dotenv()
-DEV = os.getenv("DEV")
+DEV = os.getenv("DEV") == "true"
 
 
 @asynccontextmanager
@@ -36,32 +36,27 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 app = FastAPI(title="Tortoise ORM FastAPI example", lifespan=lifespan)
 
+origins = []
 
 if DEV:
+    print("localhost")
     origins = [
         "http://localhost:3000",
     ]
-    # Todo Add check if running in dev or prod and do the same in frontend
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
 else:
+    print("dawnstar")
     origins = [
         "https://dawnstar.simarjeet.in",
     ]
-    # Todo Add check if running in dev or prod and do the same in frontend
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
 
+# Todo Add check if running in dev or prod and do the same in frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.include_router(account_routes.router, prefix="/account", tags=["Account"])
