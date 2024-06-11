@@ -422,12 +422,37 @@ async def delete_product_image(
         if image:
             await image.delete()
             return_images = []
-            images = await product.images
             for image in await product.images:
                 return_images.append({"id": image.id, "path": BASELINK + image.path})
             return {"images": return_images}
         else:
             raise HTTPException(status_code=404, detail="Image not found.")
+    except HTTPException:
+        raise
+
+
+@router.post("/add-product-image")
+async def add_product_image(
+    employee: Annotated[EmployeeSchema, Depends(get_employee)],
+    product_id: int,
+    image: UploadFile = File(...),
+):
+    try:
+        product = await Products.get_or_none(id=product_id)
+        if product is None:
+            raise HTTPException(status_code=404, detail="Cannot find product.")
+        content = await image.read()
+        with open(f"static/public/{product_id}_{image.filename}", "wb") as f:
+            f.write(content)
+            img = Images(
+                product_id=product_id,
+                path=f"static/public/{product_id}_{image.filename}",
+            )
+            await img.save()
+            return_images = []
+            for image in await product.images:
+                return_images.append({"id": image.id, "path": BASELINK + image.path})
+            return return_images
     except HTTPException:
         raise
 
