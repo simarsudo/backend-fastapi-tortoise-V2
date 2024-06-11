@@ -58,6 +58,7 @@ async def add_superuser(username: str, email: str, password: str):
             is_admin=True,
         )
         await employee.save()
+        return {"success": 200}
     except HTTPException:
         raise
 
