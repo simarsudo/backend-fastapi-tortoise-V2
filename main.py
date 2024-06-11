@@ -49,6 +49,18 @@ if DEV:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+else:
+    origins = [
+        "https://dawnstar.simarjeet.in",
+    ]
+    # Todo Add check if running in dev or prod and do the same in frontend
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
