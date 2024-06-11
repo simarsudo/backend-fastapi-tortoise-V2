@@ -30,6 +30,7 @@ from .admin_schema import (
     UpdateTopWearInventoryIn,
     UpdateTopWearInventoryOut,
     UpdateProductInfoIn,
+    DeleteProductImage,
 )
 
 __all__ = [
@@ -66,4 +67,5 @@ __all__ = [
     OrderItemsOut,
     OrderImageOut,
     UpdateProductInfoIn,
+    DeleteProductImage,
 ]

@@ -109,3 +109,8 @@ class UpdateProductInfoIn(BaseModel):
     price: int
     description: str
     type: Literal["Shirts", "TShirts", "Pants", "Joggers"]
+
+
+class DeleteProductImage(BaseModel):
+    id: int
+    imageId: int

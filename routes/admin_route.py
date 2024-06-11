@@ -25,6 +25,7 @@ from schema import (
     UpdateTopWearInventoryIn,
     UpdateTopWearInventoryOut,
     UpdateProductInfoIn,
+    DeleteProductImage,
 )
 from schema import (
     OrderItemsOut,
@@ -397,6 +398,36 @@ async def update_product_info(
         product.description = product_info.description
         await product.save()
         return {"success": 200}
+    except HTTPException:
+        raise
+
+
+@router.post("/delete-product-image")
+async def delete_product_image(
+    product_image_detail: DeleteProductImage,
+    employee: Annotated[EmployeeSchema, Depends(get_employee)],
+):
+    try:
+        product = await Products.get_or_none(
+            id=product_image_detail.id
+        ).prefetch_related("images")
+        if product is None:
+            raise HTTPException(status_code=404, detail="Product not found.")
+        images = await product.images
+        if len(images) == 1:
+            raise HTTPException(
+                status_code=400, detail="Product need to have atleast 1 image."
+            )
+        image = await Images.get_or_none(id=product_image_detail.imageId)
+        if image:
+            await image.delete()
+            return_images = []
+            images = await product.images
+            for image in await product.images:
+                return_images.append({"id": image.id, "path": BASELINK + image.path})
+            return {"images": return_images}
+        else:
+            raise HTTPException(status_code=404, detail="Image not found.")
     except HTTPException:
         raise
 
