@@ -13,8 +13,15 @@ ALGORITHM = "HS256"
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="account/login", scheme_name="JWT")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ACCESS_TOKEN_EXPIRE_MINUTES = 7 * 24 * 60  # 7 Days
-BASELINK = "http://127.0.0.1:8000/"
+BASELINK = ""
 TAXRATE = 5
+
+DEV = os.getenv("DEV") == "true"
+
+if DEV:
+    BASELINK = "http://127.0.0.1:8000/"
+else:
+    BASELINK = "https://fastapi.simarjeet.in/"
 
 TORTOISE_ORM = {
     "connections": {
