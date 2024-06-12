@@ -27,6 +27,7 @@ async def login(
 
 @router.post("/signup")
 async def signup_user(customer: CustomerSignUp):
+    print(customer)
     try:
         async with in_transaction() as conn:
             password_hash = get_password_hash(customer.password)
