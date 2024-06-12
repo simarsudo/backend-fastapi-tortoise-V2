@@ -73,7 +73,7 @@ async def get_products():
 
         return {
             "shirts": res_shirts,
-            "tshirt": res_tshirts,
+            "tshirts": res_tshirts,
             "pants": res_pants,
             "joggers": res_joggers,
         }
