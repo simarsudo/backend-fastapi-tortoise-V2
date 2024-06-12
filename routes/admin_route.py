@@ -43,44 +43,44 @@ from Enum.enum_definations import OrderStatus
 router = APIRouter()
 
 
-@router.get("/initial-setup")
-async def initial_setup():
-    try:
-        async with in_transaction() as conn:
-            password_hash = get_password_hash("$Imar4203@")
-            employee = await Employee(
-                username="elder",
-                email="elder@gmail.com",
-                password_hash=password_hash,
-                full_name="elder",
-                phone_no=905532332,
-                is_staff=True,
-                is_superuser=True,
-                is_admin=True,
-            )
-            await employee.save(using_db=conn)
-            for size, id in SIZE_IDS.items():
-                _ = Sizes(id=id, size=size)
-                await _.save(using_db=conn)
-        return {"success": 200}
-    except HTTPException:
-        raise
+# @router.get("/initial-setup")
+# async def initial_setup():
+#     try:
+#         async with in_transaction() as conn:
+#             password_hash = get_password_hash("$Imar4203@")
+#             employee = await Employee(
+#                 username="elder",
+#                 email="elder@gmail.com",
+#                 password_hash=password_hash,
+#                 full_name="elder",
+#                 phone_no=905532332,
+#                 is_staff=True,
+#                 is_superuser=True,
+#                 is_admin=True,
+#             )
+#             await employee.save(using_db=conn)
+#             for size, id in SIZE_IDS.items():
+#                 _ = Sizes(id=id, size=size)
+#                 await _.save(using_db=conn)
+#         return {"success": 200}
+#     except HTTPException:
+#         raise
 
 
-@router.post("/add-banners")
-async def add_banner(
-    # employee: Annotated[EmployeeSchema, Depends(get_employee)],
-    files: List[UploadFile] = File(...),
-):
-    try:
-        for file in files:
-            content = await file.read()
-            with open(f"static/public/{file.filename}", "wb") as f:
-                f.write(content)
-        return {"message": "Images added"}
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail="Something went wrong")
+# @router.post("/add-banners")
+# async def add_banner(
+#     employee: Annotated[EmployeeSchema, Depends(get_employee)],
+#     files: List[UploadFile] = File(...),
+# ):
+#     try:
+#         for file in files:
+#             content = await file.read()
+#             with open(f"static/public/{file.filename}", "wb") as f:
+#                 f.write(content)
+#         return {"message": "Images added"}
+#     except Exception as e:
+#         print(e)
+#         raise HTTPException(status_code=500, detail="Something went wrong")
 
 
 @router.post("/login")
