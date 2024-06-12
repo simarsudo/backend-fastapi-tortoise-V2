@@ -58,8 +58,8 @@ async def signup_user(customer: CustomerSignUp):
         return TokenOut(access_token=new_customer.token, token_type="bearer")
     except tortoise.exceptions.IntegrityError:
         raise HTTPException(status_code=400, detail="Account already exist")
-    except tortoise.exceptions.OperationalError:
-        raise HTTPException(status_code=500)
+    except Exception as e:
+        print(customer, e)
 
 
 @router.post("/logout")
