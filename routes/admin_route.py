@@ -69,7 +69,7 @@ async def initial_setup():
 
 @router.post("/add-banners")
 async def add_banner(
-    employee: Annotated[EmployeeSchema, Depends(get_employee)],
+    # employee: Annotated[EmployeeSchema, Depends(get_employee)],
     files: List[UploadFile] = File(...),
 ):
     try:
