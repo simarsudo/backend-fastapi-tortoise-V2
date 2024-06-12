@@ -1,6 +1,7 @@
 from config import BASELINK
 from fastapi import HTTPException, APIRouter
 from models import Products
+from Enum.enum_definations import ProductType
 
 router = APIRouter()
 
@@ -62,7 +63,7 @@ async def get_pants(
         offset = (page - 1) * per_page
         # Get the products for the current page
         products_data = (
-            await Products.filter(type="Pants")
+            await Products.filter(type=ProductType.PANTS)
             .prefetch_related("images")
             .offset(offset)
             .limit(per_page)
@@ -79,7 +80,9 @@ async def get_pants(
 
         # Check if there are more products after the current page
         next_page_products = (
-            await Products.filter(type="Shirt").offset(offset + per_page).count()
+            await Products.filter(type=ProductType.PANTS)
+            .offset(offset + per_page)
+            .count()
         )
 
         if not products_data:
@@ -106,7 +109,7 @@ async def get_shirts(
         offset = (page - 1) * per_page
         # Get the products for the current page
         products_data = (
-            await Products.filter(type="Shirts")
+            await Products.filter(type=ProductType.SHIRTS)
             .prefetch_related("images")
             .offset(offset)
             .limit(per_page)
@@ -123,7 +126,9 @@ async def get_shirts(
 
         # Check if there are more products after the current page
         next_page_products = (
-            await Products.filter(type="Shirts").offset(offset + per_page).count()
+            await Products.filter(type=ProductType.SHIRTS)
+            .offset(offset + per_page)
+            .count()
         )
 
         if not products_data:
@@ -150,7 +155,7 @@ async def get_tshirts(
         offset = (page - 1) * per_page
         # Get the products for the current page
         products_data = (
-            await Products.filter(type="TShirts")
+            await Products.filter(type=ProductType.TSHIRTS)
             .prefetch_related("images")
             .offset(offset)
             .limit(per_page)
@@ -167,7 +172,9 @@ async def get_tshirts(
 
         # Check if there are more products after the current page
         next_page_products = (
-            await Products.filter(type="Shirt").offset(offset + per_page).count()
+            await Products.filter(type=ProductType.TSHIRTS)
+            .offset(offset + per_page)
+            .count()
         )
 
         if not products_data:
@@ -194,7 +201,7 @@ async def get_joggers(
         offset = (page - 1) * per_page
         # Get the products for the current page
         products_data = (
-            await Products.filter(type="Joggers")
+            await Products.filter(type=ProductType.JOGGERS)
             .prefetch_related("images")
             .offset(offset)
             .limit(per_page)
@@ -211,7 +218,9 @@ async def get_joggers(
 
         # Check if there are more products after the current page
         next_page_products = (
-            await Products.filter(type="Shirt").offset(offset + per_page).count()
+            await Products.filter(type=ProductType.JOGGERS)
+            .offset(offset + per_page)
+            .count()
         )
 
         if not products_data:
