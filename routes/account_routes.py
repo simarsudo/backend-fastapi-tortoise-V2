@@ -27,7 +27,6 @@ async def login(
 
 @router.post("/signup")
 async def signup_user(customer: CustomerSignUp):
-    print(customer)
     try:
         async with in_transaction() as conn:
             password_hash = get_password_hash(customer.password)
@@ -46,6 +45,7 @@ async def signup_user(customer: CustomerSignUp):
                 state=customer.state,
                 pinCode=customer.pinCode,
                 customer_id=new_customer.id,
+                phone_no=customer.phone_no,
             )
             await new_address.save(using_db=conn)
         token = create_access_token(data={"username": new_customer.username})
@@ -58,8 +58,8 @@ async def signup_user(customer: CustomerSignUp):
         return TokenOut(access_token=new_customer.token, token_type="bearer")
     except tortoise.exceptions.IntegrityError:
         raise HTTPException(status_code=400, detail="Account already exist")
-    except Exception as e:
-        print(customer, e)
+    except HTTPException:
+        raise
 
 
 @router.post("/logout")
