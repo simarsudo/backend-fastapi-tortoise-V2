@@ -245,71 +245,71 @@ async def update_topwear_inventory(
     sizes: UpdateTopWearInventoryIn,
     employee: Annotated[EmployeeSchema, Depends(get_employee)],
 ):
-    try:
-        db_product = await Products.get_or_none(id=sizes.product_id)
-        if db_product is None:
-            raise HTTPException(status_code=404, detail="Product not found")
-        db_inv = (
-            await Inventory.filter(product=sizes.product_id)
-            .all()
-            .prefetch_related("product")
-            .prefetch_related("size")
-        )
-        if db_inv:
-            async with in_transaction() as conn:
-                for inv in db_inv:
-                    if inv.size.size == "s":
-                        inv.quantity = sizes.s
-                        await inv.save(using_db=conn)
-                    elif inv.size.size == "m":
-                        inv.quantity = sizes.m
-                        await inv.save(using_db=conn)
-                    elif inv.size.size == "l":
-                        inv.quantity = sizes.l
-                        await inv.save(using_db=conn)
-                    elif inv.size.size == "xl":
-                        inv.quantity = sizes.xl
-                        await inv.save(using_db=conn)
-                    elif inv.size.size == "xxl":
-                        inv.quantity = sizes.xxl
-                        await inv.save(using_db=conn)
-                return {"message": "Inventory updated"}
-        else:
-            new_inventory_entries = [
-                Inventory(
-                    product_id=sizes.product_id,
-                    size_id=SIZE_IDS.get("s"),
-                    quantity=sizes.s,
-                ),
-                Inventory(
-                    product_id=sizes.product_id,
-                    size_id=SIZE_IDS.get("m"),
-                    quantity=sizes.m,
-                ),
-                Inventory(
-                    product_id=sizes.product_id,
-                    size_id=SIZE_IDS.get("l"),
-                    quantity=sizes.l,
-                ),
-                Inventory(
-                    product_id=sizes.product_id,
-                    size_id=SIZE_IDS.get("xl"),
-                    quantity=sizes.xl,
-                ),
-                Inventory(
-                    product_id=sizes.product_id,
-                    size_id=SIZE_IDS.get("xxl"),
-                    quantity=sizes.xxl,
-                ),
-            ]
-            await Inventory.bulk_create(new_inventory_entries)
+    # try:
+    db_product = await Products.get_or_none(id=sizes.product_id)
+    if db_product is None:
+        raise HTTPException(status_code=404, detail="Product not found")
+    db_inv = (
+        await Inventory.filter(product=sizes.product_id)
+        .all()
+        .prefetch_related("product")
+        .prefetch_related("size")
+    )
+    if db_inv:
+        async with in_transaction() as conn:
+            for inv in db_inv:
+                if inv.size.size == "s":
+                    inv.quantity = sizes.s
+                    await inv.save(using_db=conn)
+                elif inv.size.size == "m":
+                    inv.quantity = sizes.m
+                    await inv.save(using_db=conn)
+                elif inv.size.size == "l":
+                    inv.quantity = sizes.l
+                    await inv.save(using_db=conn)
+                elif inv.size.size == "xl":
+                    inv.quantity = sizes.xl
+                    await inv.save(using_db=conn)
+                elif inv.size.size == "xxl":
+                    inv.quantity = sizes.xxl
+                    await inv.save(using_db=conn)
             return {"message": "Inventory updated"}
-    except tortoise.exceptions.IntegrityError:
-        raise HTTPException(status_code=400, detail="Account already exist")
-    except tortoise.exceptions.OperationalError:
-        raise HTTPException(status_code=500)
-    except HTTPException:
-        raise
+    else:
+        new_inventory_entries = [
+            Inventory(
+                product_id=sizes.product_id,
+                size_id=SIZE_IDS.get("s"),
+                quantity=sizes.s,
+            ),
+            Inventory(
+                product_id=sizes.product_id,
+                size_id=SIZE_IDS.get("m"),
+                quantity=sizes.m,
+            ),
+            Inventory(
+                product_id=sizes.product_id,
+                size_id=SIZE_IDS.get("l"),
+                quantity=sizes.l,
+            ),
+            Inventory(
+                product_id=sizes.product_id,
+                size_id=SIZE_IDS.get("xl"),
+                quantity=sizes.xl,
+            ),
+            Inventory(
+                product_id=sizes.product_id,
+                size_id=SIZE_IDS.get("xxl"),
+                quantity=sizes.xxl,
+            ),
+        ]
+        await Inventory.bulk_create(new_inventory_entries)
+        return {"message": "Inventory updated"}
+    # except tortoise.exceptions.IntegrityError:
+    #     raise HTTPException(status_code=400, detail="Account already exist")
+    # except tortoise.exceptions.OperationalError:
+    #     raise HTTPException(status_code=500)
+    # except HTTPException:
+    #     raise
 
 
 @router.post(
@@ -319,71 +319,71 @@ async def update_bottomwear_inventory(
     sizes: UpdateBottomwearInventoryIn,
     employee: Annotated[EmployeeSchema, Depends(get_employee)],
 ):
-    try:
-        db_product = await Products.get_or_none(id=sizes.product_id)
-        if db_product is None:
-            raise HTTPException(status_code=404, detail="Product not found")
-        db_inv = (
-            await Inventory.filter(product=sizes.product_id)
-            .all()
-            .prefetch_related("product")
-            .prefetch_related("size")
-        )
-        if db_inv:
-            async with in_transaction() as conn:
-                for inv in db_inv:
-                    if inv.size.size == "32":
-                        inv.quantity = sizes.size_32
-                        await inv.save(using_db=conn)
-                    elif inv.size.size == "34":
-                        inv.quantity = sizes.size_34
-                        await inv.save(using_db=conn)
-                    elif inv.size.size == "36":
-                        inv.quantity = sizes.size_36
-                        await inv.save(using_db=conn)
-                    elif inv.size.size == "38":
-                        inv.quantity = sizes.size_38
-                        await inv.save(using_db=conn)
-                    elif inv.size.size == "40":
-                        inv.quantity = sizes.size_40
-                        await inv.save(using_db=conn)
-                return {"message": "Inventory updated"}
-        else:
-            new_inventory_entries = [
-                Inventory(
-                    product_id=sizes.product_id,
-                    size_id=SIZE_IDS.get("32"),
-                    quantity=sizes.size_32,
-                ),
-                Inventory(
-                    product_id=sizes.product_id,
-                    size_id=SIZE_IDS.get("34"),
-                    quantity=sizes.size_34,
-                ),
-                Inventory(
-                    product_id=sizes.product_id,
-                    size_id=SIZE_IDS.get("36"),
-                    quantity=sizes.size_36,
-                ),
-                Inventory(
-                    product_id=sizes.product_id,
-                    size_id=SIZE_IDS.get("38"),
-                    quantity=sizes.size_38,
-                ),
-                Inventory(
-                    product_id=sizes.product_id,
-                    size_id=SIZE_IDS.get("40"),
-                    quantity=sizes.size_40,
-                ),
-            ]
-            await Inventory.bulk_create(new_inventory_entries)
+    # try:
+    db_product = await Products.get_or_none(id=sizes.product_id)
+    if db_product is None:
+        raise HTTPException(status_code=404, detail="Product not found")
+    db_inv = (
+        await Inventory.filter(product=sizes.product_id)
+        .all()
+        .prefetch_related("product")
+        .prefetch_related("size")
+    )
+    if db_inv:
+        async with in_transaction() as conn:
+            for inv in db_inv:
+                if inv.size.size == "32":
+                    inv.quantity = sizes.size_32
+                    await inv.save(using_db=conn)
+                elif inv.size.size == "34":
+                    inv.quantity = sizes.size_34
+                    await inv.save(using_db=conn)
+                elif inv.size.size == "36":
+                    inv.quantity = sizes.size_36
+                    await inv.save(using_db=conn)
+                elif inv.size.size == "38":
+                    inv.quantity = sizes.size_38
+                    await inv.save(using_db=conn)
+                elif inv.size.size == "40":
+                    inv.quantity = sizes.size_40
+                    await inv.save(using_db=conn)
             return {"message": "Inventory updated"}
-    except tortoise.exceptions.IntegrityError:
-        raise HTTPException(status_code=400, detail="Account already exist")
-    except tortoise.exceptions.OperationalError:
-        raise HTTPException(status_code=500)
-    except HTTPException:
-        raise
+    else:
+        new_inventory_entries = [
+            Inventory(
+                product_id=sizes.product_id,
+                size_id=SIZE_IDS.get("32"),
+                quantity=sizes.size_32,
+            ),
+            Inventory(
+                product_id=sizes.product_id,
+                size_id=SIZE_IDS.get("34"),
+                quantity=sizes.size_34,
+            ),
+            Inventory(
+                product_id=sizes.product_id,
+                size_id=SIZE_IDS.get("36"),
+                quantity=sizes.size_36,
+            ),
+            Inventory(
+                product_id=sizes.product_id,
+                size_id=SIZE_IDS.get("38"),
+                quantity=sizes.size_38,
+            ),
+            Inventory(
+                product_id=sizes.product_id,
+                size_id=SIZE_IDS.get("40"),
+                quantity=sizes.size_40,
+            ),
+        ]
+        await Inventory.bulk_create(new_inventory_entries)
+        return {"message": "Inventory updated"}
+    # except tortoise.exceptions.IntegrityError:
+    #     raise HTTPException(status_code=400, detail="Account already exist")
+    # except tortoise.exceptions.OperationalError:
+    #     raise HTTPException(status_code=500)
+    # except HTTPException:
+    #     raise
 
 
 @router.get("/get-product-info")
