@@ -63,6 +63,17 @@ router = APIRouter()
 #         raise
 
 
+@router.get("/initial-size_setup")
+async def initial_size_setup():
+    try:
+        async with in_transaction() as conn:
+            for size, id in SIZE_IDS.items():
+                _ = Sizes(id=id, size=size)
+                await _.save(using_db=conn)
+    except HTTPException:
+        raise
+
+
 @router.post("/login")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     try:
