@@ -43,33 +43,26 @@ from Enum.enum_definations import OrderStatus
 router = APIRouter()
 
 
-# @router.post("/add-superuser")
-# async def add_superuser(username: str, email: str, password: str):
-#     try:
-#         password_hash = get_password_hash(password)
-#         employee = await Employee(
-#             username=username.lower(),
-#             email=email,
-#             password_hash=password_hash,
-#             full_name=username.lower(),
-#             phone_no=905532332,
-#             is_staff=True,
-#             is_superuser=True,
-#             is_admin=True,
-#         )
-#         await employee.save()
-#         return {"success": 200}
-#     except HTTPException:
-#         raise
-
-
-@router.get("/initial-size_setup")
-async def initial_size_setup():
+@router.get("/initial-setup")
+async def initial_setup():
     try:
         async with in_transaction() as conn:
+            password_hash = get_password_hash("$Imar4203@")
+            employee = await Employee(
+                username="elder",
+                email="elder@gmail.com",
+                password_hash=password_hash,
+                full_name="elder",
+                phone_no=905532332,
+                is_staff=True,
+                is_superuser=True,
+                is_admin=True,
+            )
+            await employee.save(using_db=conn)
             for size, id in SIZE_IDS.items():
                 _ = Sizes(id=id, size=size)
                 await _.save(using_db=conn)
+        return {"success": 200}
     except HTTPException:
         raise
 
