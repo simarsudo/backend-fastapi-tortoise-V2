@@ -7,45 +7,76 @@ router = APIRouter()
 
 
 @router.get("")
-async def get_products(
-    page: int = 1,
-    per_page: int = 16,
-):
+async def get_products():
+    LIIMIT = 4
     try:
-        if page < 1:
-            raise HTTPException(status_code=400, detail="Page cannont be less than 0")
-        if per_page < 1:
-            raise HTTPException(status_code=400, detail="Item count be less than 0")
-        offset = (page - 1) * per_page
-        # Get the products for the current page
-        products_data = (
-            await Products.all()
+        shirts = (
+            await Products.filter(type=ProductType.SHIRTS)
+            .limit(LIIMIT)
             .prefetch_related("images")
-            .offset(offset)
-            .limit(per_page)
         )
-        products = []
-        for product in products_data:
+        tshirts = (
+            await Products.filter(type=ProductType.TSHIRTS)
+            .limit(LIIMIT)
+            .prefetch_related("images")
+        )
+        pants = (
+            await Products.filter(type=ProductType.PANTS)
+            .limit(LIIMIT)
+            .prefetch_related("images")
+        )
+        joggers = (
+            await Products.filter(type=ProductType.JOGGERS)
+            .limit(LIIMIT)
+            .prefetch_related("images")
+        )
+
+        res_shirts = []
+        for product in shirts:
             images = await product.images.all()
-            product_dict = dict(product)
+            shirt_dict = dict(product)
             image = images[0].path
-            product_dict["image"] = BASELINK + image
-            product_dict.pop("type")
-            product_dict.pop("description")
-            products.append(product_dict)
+            shirt_dict["image"] = BASELINK + image
+            shirt_dict.pop("type")
+            shirt_dict.pop("description")
+            res_shirts.append(shirt_dict)
 
-        # Check if there are more products after the current page
-        next_page_products = (
-            await Products.filter(type="Shirts").offset(offset + per_page).count()
-        )
+        res_tshirts = []
+        for product in tshirts:
+            images = await product.images.all()
+            shirt_dict = dict(product)
+            image = images[0].path
+            shirt_dict["image"] = BASELINK + image
+            shirt_dict.pop("type")
+            shirt_dict.pop("description")
+            res_tshirts.append(shirt_dict)
 
-        if not products_data:
-            raise HTTPException(status_code=404, detail="No products found")
+        res_pants = []
+        for product in pants:
+            images = await product.images.all()
+            pant_dict = dict(product)
+            image = images[0].path
+            pant_dict["image"] = BASELINK + image
+            pant_dict.pop("type")
+            pant_dict.pop("description")
+            res_pants.append(pant_dict)
 
-        # Determine if there are more products for the next page
-        has_next_page = next_page_products > 0
+        res_joggers = []
+        for product in joggers:
+            images = await product.images.all()
+            joggers_dict = dict(product)
+            image = images[0].path
+            joggers_dict["image"] = BASELINK + image
+            joggers_dict.pop("type")
+            joggers_dict.pop("description")
+            res_joggers.append(joggers_dict)
 
-        return {"nextPage": has_next_page, "products": products}
+        return {
+            "shirts": res_shirts,
+            "tshirt": res_tshirts,
+            "pants": res_pants,
+            "joggers": res_joggers,
+        }
     except HTTPException:
         raise
 
