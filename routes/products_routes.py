@@ -1,3 +1,4 @@
+from typing import Literal
 from config import BASELINK
 from fastapi import HTTPException, APIRouter
 from models import Products
@@ -83,9 +84,11 @@ async def get_products():
 
 @router.get("/pants")
 async def get_pants(
-    page: int = 1,
-    per_page: int = 16,
+    page: int = 1, per_page: int = 16, price_sort: Literal["a", "d"] = "a"
 ):
+    sort = "price"
+    if price_sort == "d":
+        sort = "-price"
     try:
         if page < 1:
             raise HTTPException(status_code=400, detail="Page cannont be less than 0")
@@ -96,6 +99,7 @@ async def get_pants(
         products_data = (
             await Products.filter(type=ProductType.PANTS)
             .prefetch_related("images")
+            .order_by(sort)
             .offset(offset)
             .limit(per_page)
         )
@@ -129,9 +133,11 @@ async def get_pants(
 
 @router.get("/shirts")
 async def get_shirts(
-    page: int = 1,
-    per_page: int = 16,
+    page: int = 1, per_page: int = 16, price_sort: Literal["a", "d"] = "a"
 ):
+    sort = "price"
+    if price_sort == "d":
+        sort = "-price"
     try:
         if page < 1:
             raise HTTPException(status_code=400, detail="Page cannont be less than 0")
@@ -141,6 +147,7 @@ async def get_shirts(
         # Get the products for the current page
         products_data = (
             await Products.filter(type=ProductType.SHIRTS)
+            .order_by(sort)
             .prefetch_related("images")
             .offset(offset)
             .limit(per_page)
@@ -175,9 +182,11 @@ async def get_shirts(
 
 @router.get("/tshirts")
 async def get_tshirts(
-    page: int = 1,
-    per_page: int = 16,
+    page: int = 1, per_page: int = 16, price_sort: Literal["a", "d"] = "a"
 ):
+    sort = "price"
+    if price_sort == "d":
+        sort = "-price"
     try:
         if page < 1:
             raise HTTPException(status_code=400, detail="Page cannont be less than 0")
@@ -187,6 +196,7 @@ async def get_tshirts(
         # Get the products for the current page
         products_data = (
             await Products.filter(type=ProductType.TSHIRTS)
+            .order_by(sort)
             .prefetch_related("images")
             .offset(offset)
             .limit(per_page)
@@ -221,9 +231,11 @@ async def get_tshirts(
 
 @router.get("/joggers")
 async def get_joggers(
-    page: int = 1,
-    per_page: int = 16,
+    page: int = 1, per_page: int = 16, price_sort: Literal["a", "d"] = "a"
 ):
+    sort = "price"
+    if price_sort == "d":
+        sort = "-price"
     try:
         if page < 1:
             raise HTTPException(status_code=400, detail="Page cannont be less than 0")
@@ -233,6 +245,7 @@ async def get_joggers(
         # Get the products for the current page
         products_data = (
             await Products.filter(type=ProductType.JOGGERS)
+            .order_by(sort)
             .prefetch_related("images")
             .offset(offset)
             .limit(per_page)
