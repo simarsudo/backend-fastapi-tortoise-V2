@@ -1,7 +1,6 @@
 from config import BASELINK
 from fastapi import HTTPException, APIRouter
 from models import Products, Inventory
-# from Enum.enum_definations import ProductType
 
 router = APIRouter()
 
@@ -21,24 +20,6 @@ async def get_product(slug: str):
             "images": [],
             "sizesAvailable": [],
         }
-        # sizesAvailable = []
-
-        # if product.type == ProductType.JOGGERS or product.type == ProductType.PANTS:
-        #     sizesAvailable = [
-        #         {"32": True},
-        #         {"34": True},
-        #         {"36": True},
-        #         {"38": True},
-        #         {"40": True},
-        #     ]
-        # else:
-        #     sizesAvailable = [
-        #         {"s": True},
-        #         {"m": True},
-        #         {"l": True},
-        #         {"xl": True},
-        #         {"xxl": True},
-        #     ]
 
         inventory = await Inventory.filter(product_id=product.id).prefetch_related(
             "size"
@@ -53,7 +34,6 @@ async def get_product(slug: str):
                     response["sizesAvailable"].append(
                         {"size": i.size.size, "available": False}
                     )
-        # response["sizesAvailable"] = sizesAvailable
         for image in product.images:
             response["images"].append(BASELINK + image.path)
         return response
