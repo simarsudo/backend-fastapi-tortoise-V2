@@ -9,7 +9,7 @@ router = APIRouter()
 
 @router.get("")
 async def get_products():
-    LIIMIT = 6
+    LIIMIT = 7
     try:
         shirts = (
             await Products.filter(type=ProductType.SHIRTS)
