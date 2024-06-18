@@ -10,6 +10,35 @@ router = APIRouter()
 @router.get("")
 async def get_products():
     LIIMIT = 7
+    bannerImagesLg = [
+        {
+            "img": BASELINK + "static/public/shirts_banner.webp",
+            "link": "/products/shirts?page=1&sort=a",
+        },
+        {
+            "img": BASELINK + "static/public/pants_banner.webp",
+            "link": "/products/pants?page=1&sort=a",
+        },
+        {
+            "img": BASELINK + "static/public/t-shirts_banner.webp",
+            "link": "/products/t-shirts?page=1&sort=a",
+        },
+    ]
+    bannerImagesMb = [
+        {
+            "img": BASELINK + "static/public/shirts_banner_mb.webp",
+            "link": "/products/shirts?page=1&sort=a",
+        },
+        {
+            "img": BASELINK + "static/public/pants_banner_mb.webp",
+            "link": "/products/pants?page=1&sort=a",
+        },
+        {
+            "img": BASELINK + "static/public/t-shirts_banner_mb.webp",
+            "link": "/products/t-shirts?page=1&sort=a",
+        },
+    ]
+
     try:
         shirts = (
             await Products.filter(type=ProductType.SHIRTS)
@@ -73,6 +102,8 @@ async def get_products():
             res_joggers.append(joggers_dict)
 
         return {
+            "bannerImagesLg": bannerImagesLg,
+            "bannerImagesMb": bannerImagesMb,
             "shirts": res_shirts,
             "tshirts": res_tshirts,
             "pants": res_pants,
