@@ -67,20 +67,20 @@ router = APIRouter()
 #         raise
 
 
-@router.post("/add-banners")
-async def add_banner(
-    # employee: Annotated[EmployeeSchema, Depends(get_employee)],
-    files: List[UploadFile] = File(...),
-):
-    try:
-        for file in files:
-            content = await file.read()
-            with open(f"static/public/{file.filename}", "wb") as f:
-                f.write(content)
-        return {"message": "Images added"}
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail="Something went wrong")
+# @router.post("/add-banners")
+# async def add_banner(
+#     # employee: Annotated[EmployeeSchema, Depends(get_employee)],
+#     files: List[UploadFile] = File(...),
+# ):
+#     try:
+#         for file in files:
+#             content = await file.read()
+#             with open(f"static/public/{file.filename}", "wb") as f:
+#                 f.write(content)
+#         return {"message": "Images added"}
+#     except Exception as e:
+#         print(e)
+#         raise HTTPException(status_code=500, detail="Something went wrong")
 
 
 @router.post("/login")
